@@ -1,0 +1,12 @@
+{
+  "name": "desktop-cleanup-fs-prototype",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-isolation=none",
+    "dev": "node tools/serve.mjs 5173",
+    "helper": "node helper/desktop-helper.mjs",
+    "helper:dev": "node helper/desktop-helper.mjs --dev --app http://localhost:5173"
+  }
+}

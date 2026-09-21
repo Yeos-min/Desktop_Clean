@@ -1,0 +1,23 @@
+/* 샘플 상자 내부: 방 위에 펼친 얕은 수납 트레이. */
+.folder-interior { width: min(940px, 92vw); max-height: 86vh; padding: 28px; border: 8px solid #a88c67; border-radius: 20px; background: #f2eadb; color: #443d30; box-shadow: 0 28px 80px #20190c66; }
+.folder-interior::backdrop { background: #28271f88; backdrop-filter: blur(5px); }
+.folder-interior header, .folder-interior nav, .folder-interior footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.folder-interior h2 { margin: 6px 0 18px; font-size: 22px; overflow-wrap: anywhere; }
+.folder-interior small { color: #78765b; letter-spacing: .12em; }
+.folder-interior button { cursor: pointer; border-radius: 9px; }
+.folder-interior button:focus-visible { outline: 3px solid #768255; outline-offset: 3px; }
+.folder-interior nav { font-size: 13px; color: #746b5b; margin-bottom: 18px; }
+.interior-tray { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 22px; align-content: start; padding: 26px; max-height: 51vh; min-height: 250px; overflow-y: auto; background: #dfd1ba; border-radius: 12px; box-shadow: inset 0 5px 12px #5a432b28; border-bottom: 7px solid #c0a888; }
+.interior-tray button { min-width: 0; display: flex; flex-direction: column; gap: 10px; padding: 12px; background: #fcf8ed; border: 2px solid transparent; border-bottom: 5px solid #cabc9e; box-shadow: 0 8px 10px #51412625; transform: perspective(700px) rotateX(7deg); transition: transform .15s, box-shadow .15s; }
+.interior-tray button:hover, .interior-tray button[aria-pressed="true"] { transform: translateY(-5px); border-color: #79845a; box-shadow: 0 12px 16px #51412635; }
+.interior-tray button[aria-pressed="true"] { background: #eaf0d8; }
+.interior-tray strong { width: 100%; font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.interior-face { height: 85px; width: 100%; display: grid; place-items: center; background: #e6e1d4; color: #77745e; font-weight: 700; border-radius: 5px; overflow: hidden; }
+.interior-face img { width: 100%; height: 100%; object-fit: cover; }
+.interior-tray .interior-folder { background: #a6ab83; border-bottom-color: #737955; }
+.interior-folder .interior-face { background: #858c64; color: #f9f3df; border-radius: 6px 18px 4px 4px; }
+.interior-empty { grid-column: 1 / -1; align-self: center; text-align: center; color: #766b59; padding: 55px 15px; }
+.folder-interior footer { width: auto; margin-top: 18px; padding: 0; font-size: 14px; letter-spacing: normal; text-transform: none; }
+.folder-interior header button, .folder-interior nav button, .folder-interior footer button { padding: 10px 14px; background: #faf5e9; border: 1px solid #b7ac94; color: #514b3c; }
+.interior-tray button { color: #443d30; }
+body.is-playing .folder-interior footer { display: flex; }

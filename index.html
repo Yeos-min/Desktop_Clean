@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="내 바탕화면을 정리해야 할 물건이 흩어진 공간으로 바꿔, 집어 옮기며 정리하는 웹 프로토타입" />
+    <meta name="theme-color" content="#10120f" />
+    <title>정리대 — 3D 프로토타입</title>
+    <link rel="stylesheet" href="./css/styles.css" />
+    <link rel="stylesheet" href="./css/folder-interior.css" />
+    <!-- three.js는 vendor/에 넣어 두었다. 발표 중 네트워크가 끊겨도 돌아간다. -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./vendor/three/three.module.min.js",
+          "three/addons/": "./vendor/three/addons/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="정리대 홈">
+        <span class="brand-mark" aria-hidden="true">J</span>
+        <span>
+          <strong>정리대</strong>
+          <small>DESKTOP CLEANUP · PROTOTYPE 0-C</small>
+        </span>
+      </a>
+      <div class="topbar-right">
+        <span class="mode-pill" id="mode-pill" data-mode="none">모드 선택 전</span>
+        <span class="scope-pill"><span></span> Chromium 데스크톱 전용</span>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <!-- ───────── 온보딩: 웹 체험 / Desktop Helper ───────── -->
+      <section id="onboarding" class="onboarding" aria-labelledby="page-title">
+        <div class="onboarding-head">
+          <div>
+            <p class="eyebrow">0-C · 2D 검증</p>
+            <h1 id="page-title">내 바탕화면을<br /><em>쓸어 담으세요.</em></h1>
+          </div>
+          <p class="intro-copy">
+            바탕화면의 파일이 책상 위에 흩어진 물건처럼 놓입니다. 손으로 집어 폴더에 넣으세요.
+            설치 없이 체험할 수 있고, Desktop Helper를 연결하면 실제 폴더에 그대로 반영됩니다.
+          </p>
+        </div>
+
+        <div id="support-state" class="support-state" role="alert" hidden></div>
+
+        <div id="memory-tools" class="memory-tools">
+          <div>
+            <h2>파일 준비 없이 먼저 체험해 보세요</h2>
+            <p>준비된 가상 파일과 폴더로 정리를 체험합니다. 설치나 파일 접근 권한이 필요 없고, 실제 파일은 변경하지 않습니다.</p>
+          </div>
+          <button class="button button-commit" id="load-sample" type="button">가상 파일로 체험하기</button>
+        </div>
+
+        <div class="modes">
+          <article class="mode" id="mode-web" data-mode="web">
+            <header class="mode-head">
+              <span class="mode-tag">설치 없음 · 확인창 없음</span>
+              <h2>웹에서 바로 체험하기</h2>
+            </header>
+            <p>
+              바탕화면에서 <kbd>Ctrl</kbd><kbd>A</kbd>로 전부 고른 뒤 아래에 놓으세요. 파일은 읽기만 하고
+              <strong>디스크는 바꾸지 않습니다.</strong> 정리 결과는 계획으로 남습니다.
+            </p>
+            <div class="drop-target" data-drop="desktop" tabindex="0" aria-label="바탕화면 항목 드롭 영역">
+              <span class="drop-symbol" aria-hidden="true">↓</span>
+              <p>바탕화면 항목 <strong>전부</strong>를 여기에 놓으세요.</p>
+              <small>파일은 카드가 되고 폴더는 배송지가 됩니다. 휴지통·내 PC 같은 항목은 자동으로 빠집니다. 폴더 안은 한 단계씩만 봅니다.</small>
+            </div>
+            <p class="file-preview" id="web-summary"></p>
+            <button class="button button-commit" id="start-web" type="button" disabled>책상 열기 · 체험</button>
+          </article>
+
+          <article class="mode" id="mode-helper" data-mode="helper">
+            <header class="mode-head">
+              <span class="mode-tag mode-tag-real">실제 반영</span>
+              <h2>내 Desktop과 연결하기</h2>
+            </header>
+            <p>
+              작은 Desktop Helper를 실행하면 바탕화면을 자동으로 읽고, <strong>옮기는 순간 실제 폴더에 반영</strong>됩니다.
+              되돌리기도 실제로 됩니다. Helper는 바탕화면 안의 이동과 새 폴더만 할 수 있고, 지우기는 없습니다.
+            </p>
+            <ol class="howto">
+              <li><a id="helper-download" href="https://github.com/min20011009/desktop-cleanup-prototype/releases" target="_blank" rel="noopener">Desktop Helper</a>를 받아 실행합니다. Node 20 이상이 있으면 <code>node desktop-helper.mjs</code>.</li>
+              <li>실행되면 브라우저가 이 페이지를 연결 주소로 엽니다. Chrome이 "로컬 네트워크 접근"을 물으면 허용하세요.</li>
+              <li>자동으로 안 열리면 Helper 창의 포트와 토큰을 넣고 연결하세요.</li>
+            </ol>
+            <form id="helper-form" class="helper-form" autocomplete="off">
+              <input id="helper-port" inputmode="numeric" placeholder="포트" aria-label="Helper 포트" />
+              <input id="helper-token" placeholder="토큰" aria-label="Helper 토큰" />
+              <button class="button button-secondary" type="submit">연결</button>
+            </form>
+            <p class="file-preview" id="helper-state"></p>
+            <button class="button button-commit" id="start-helper" type="button" disabled>바탕화면 읽기 · 시작</button>
+          </article>
+        </div>
+
+        <p class="step-help">
+          보드에는 한 번에 <strong id="capacity-label">16</strong>장씩 올라오고, 나머지는 더미에서 이어서 나옵니다.
+          어떤 파일을 어디에 넣을지는 전부 당신이 정합니다. 자동 추천은 없습니다.
+        </p>
+
+        <div id="onboarding-notice" class="notice" role="status" aria-live="polite" hidden></div>
+      </section>
+
+      <!-- ───────── 보드 ───────── -->
+      <section id="stage" class="stage" aria-label="정리 보드" hidden>
+        <div class="stage-bar">
+          <div class="room-brand"><strong>Desktop Clean-UP</strong><small id="room-mode">나의 작은 정리방</small></div>
+          <div class="stage-bar-group">
+            <button class="button button-undo button-small" id="undo-button" type="button" disabled>
+              <span class="undo-label">마지막 더미 되돌리기</span> <kbd>Ctrl</kbd><kbd>Z</kbd>
+            </button>
+            <button class="button button-secondary button-small" id="arrange-toggle" type="button" aria-pressed="false">파일 정리 모드 · Tab</button>
+            <button class="button button-secondary button-small" id="panel-toggle" type="button" aria-pressed="false" aria-label="설정 및 기록 열기" title="설정 및 기록">
+              <span aria-hidden="true">⚙</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="stage-body">
+          <div class="board-stack">
+            <div id="board-root" class="board-viewport"></div>
+            <div class="room-key-hints"><span><kbd>W A S D</kbd> 이동</span><span><kbd>Tab</kbd> 정리 / 상자 배치</span><span><kbd>Esc</kbd> 커서 · 배치 취소</span></div>
+            <div class="progress-hud" id="progress-hud" aria-live="polite">
+              <div class="progress-count">
+                <strong id="progress-done">0</strong><span id="progress-total">/ 0</span>
+              </div>
+              <small>치운 파일</small>
+              <div class="progress-bar"><span id="progress-fill"></span></div>
+            </div>
+          </div>
+          <aside class="stage-side">
+            <h2 class="room-settings-title">나의 정리방</h2>
+            <div class="stage-summary" id="stage-summary" aria-live="polite"></div>
+            <div class="room-settings-controls">
+              <label class="control">폴더 배치
+                <select id="placement">
+                  <option value="far">벽면 수납장</option>
+                  <option value="bottom">하단 한 줄</option>
+                  <option value="right">우측 세로열</option>
+                </select>
+              </label>
+              <label class="control">카메라 <select id="camera"></select></label>
+            </div>
+            <form id="new-folder-form" class="new-folder-form" autocomplete="off" hidden>
+              <input id="new-folder-name" placeholder="새 폴더 이름" aria-label="새 폴더 이름" maxlength="200" />
+              <button class="button button-secondary button-small" type="submit">새 폴더</button>
+            </form>
+            <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+            <section class="plan-panel">
+              <h3 id="plan-title">정리 계획</h3>
+              <ul id="plan" class="plan"></ul>
+            </section>
+            <!-- 1인칭 조준선 조작. 여기를 고치면 README의 조작 표도 같이 고칠 것. -->
+            <section class="help">
+              <h3>조작</h3>
+              <p class="help-lead">화면을 클릭하면 마우스를 잡아 시점이 된다. <kbd>Esc</kbd>로 놓는다.</p>
+              <ul>
+                <li>마우스 · 둘러보기 (조준선이 곧 손이 닿는 곳)</li>
+                <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> · 걷기. <kbd>Shift</kbd>로 빠르게</li>
+                <li>카드를 보고 클릭 · 손에 담기. 누른 채 훑으면 닿는 대로 담긴다</li>
+                <li>폴더를 보고 클릭 · 든 것을 전부 넣기. 빈손이면 폴더가 열린다</li>
+                <li>샘플 상자 내부 · 클릭으로 선택, Shift+클릭으로 여러 개 선택, Esc로 들고 돌아오기</li>
+                <li><kbd>1</kbd>~<kbd>9</kbd> · 든 것을 보이는 줄의 N번 폴더에 넣기</li>
+                <li>오른쪽 버튼 · 겨누는 그 자리에 내려놓기</li>
+                <li>더미를 보고 클릭 · 다음 무더기 꺼내기</li>
+                <li><kbd>Ctrl</kbd><kbd>A</kbd> 전부 담기 · <kbd>Backspace</kbd> 칸 닫기</li>
+                <li><kbd>Ctrl</kbd><kbd>Z</kbd> · 마지막 더미 되돌리기</li>
+                <li><kbd>Tab</kbd> · 파일 정리 / 상자 배치 모드 전환</li>
+                <li>상자 배치 · 좌클릭 집기/놓기, 휠로 15°씩 회전, 초록 미리보기에서만 놓기, 우클릭·Esc 취소</li>
+                <li>배치 모드의 <kbd>Ctrl</kbd><kbd>Z</kbd> · 상자 위치 되돌리기. 설정은 ⚙ 버튼</li>
+              </ul>
+            </section>
+            <div class="log-head">
+              <h3>기록</h3>
+              <small>성공과 실패를 이름으로 구분합니다</small>
+            </div>
+            <ol id="log" class="log" aria-live="polite"></ol>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Prototype 0-C</span>
+      <span>덮어쓰기 없음 · 삭제 없음 · 세션 되돌리기 · 바탕화면 밖은 건드리지 않음</span>
+    </footer>
+
+    <template id="card-template">
+      <article class="card" data-status="idle">
+        <div class="card-face">
+          <div class="card-glyph"><span class="card-ext"></span></div>
+          <div class="card-body">
+            <div class="card-name"></div>
+            <div class="card-meta"></div>
+          </div>
+        </div>
+        <span class="card-badge" hidden></span>
+        <span class="card-ring" aria-hidden="true"></span>
+      </article>
+    </template>
+
+    <template id="box-template">
+      <div class="box">
+        <span class="box-key" aria-hidden="true"></span>
+        <div class="box-lid" aria-hidden="true"></div>
+        <span class="box-hint" aria-hidden="true">열기 ▸</span>
+        <div class="box-label">
+          <strong class="box-name"></strong>
+          <small class="box-count"></small>
+        </div>
+      </div>
+    </template>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
